@@ -58,7 +58,10 @@ export function markCurrentScopeAsDynamic(
     // We track that we had a dynamic scope that postponed.
     // This will be used by the renderer to decide whether
     // the prerender requires a resume
-    store.prerenderState.hasDynamic = true
+    store.prerenderState.dynamicAccesses.push({
+      stack: new Error(expression).stack,
+      expression,
+    })
     React.unstable_postpone(createPostponeReason(expression, pathname))
   } else {
     store.revalidate = 0
@@ -106,7 +109,10 @@ export function trackDynamicDataAccessed(
     // We track that we had a dynamic scope that postponed.
     // This will be used by the renderer to decide whether
     // the prerender requires a resume
-    store.prerenderState.hasDynamic = true
+    store.prerenderState.dynamicAccesses.push({
+      stack: new Error(expression).stack,
+      expression,
+    })
     React.unstable_postpone(createPostponeReason(expression, pathname))
   } else {
     store.revalidate = 0
@@ -145,7 +151,10 @@ export function trackDynamicFetch(
 ) {
   if (store.prerenderState) {
     assertPostpone()
-    store.prerenderState.hasDynamic = true
+    store.prerenderState.dynamicAccesses.push({
+      stack: new Error(expression).stack,
+      expression,
+    })
     React.unstable_postpone(createPostponeReason(expression, store.urlPathname))
   }
 }

@@ -65,9 +65,7 @@ export const StaticGenerationAsyncStorageWrapper: AsyncStorageWrapper<
 
     const prerenderState: StaticGenerationStore['prerenderState'] =
       isStaticGeneration && renderOpts.experimental.ppr
-        ? {
-            hasDynamic: false,
-          }
+        ? { dynamicAccesses: [] }
         : null
 
     const store: StaticGenerationStore = {

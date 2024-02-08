@@ -1243,7 +1243,7 @@ async function renderToHTMLOrFlightImpl(
   // navigation signal error or a client-side rendering bailout error.
   if (
     staticGenerationStore.prerenderState &&
-    staticGenerationStore.prerenderState.hasDynamic &&
+    staticGenerationStore.prerenderState.dynamicAccesses.length > 0 &&
     !metadata.postponed &&
     (!response.err ||
       (!isBailoutToCSRError(response.err) &&
@@ -1258,6 +1258,31 @@ async function renderToHTMLOrFlightImpl(
         `by a try/catch or a Promise was not awaited. These special objects should not be caught ` +
         `by your own try/catch. Learn more: https://nextjs.org/docs/messages/ppr-caught-error`
     )
+
+    // Get the unique expressions so we can print them.
+    const expressions = Array.from(
+      new Set(
+        staticGenerationStore.prerenderState.dynamicAccesses.map(
+          ({ expression }) => expression
+        )
+      )
+    )
+      .sort()
+      .join(', ')
+    warn(`The following dynamic usage was detected: ${expressions}`)
+
+    // Get the unique stack traces and print them.
+    const stacks = Array.from(
+      new Set(
+        staticGenerationStore.prerenderState.dynamicAccesses
+          .map(({ stack }) => stack)
+          .filter((stack): stack is string => typeof stack === 'string')
+          .map((stack) => stack.replace(/^Error: /, ''))
+      )
+    ).sort()
+    for (const stack of stacks) {
+      error(stack)
+    }
 
     if (digestErrorsMap.size > 0) {
       warn(

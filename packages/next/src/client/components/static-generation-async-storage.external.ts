@@ -7,7 +7,7 @@ import type { Revalidate } from '../../server/lib/revalidate'
 import { createAsyncLocalStorage } from './async-local-storage'
 
 type PrerenderState = {
-  hasDynamic: boolean
+  dynamicAccesses: { stack?: string; expression: string }[]
 }
 
 export interface StaticGenerationStore {
