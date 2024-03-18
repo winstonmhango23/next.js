@@ -19,7 +19,7 @@ import { HMR_ACTIONS_SENT_TO_BROWSER } from '../server/dev/hot-reloader-types'
 // Since React doesn't call onerror for errors caught in error boundaries.
 const origConsoleError = window.console.error
 window.console.error = (...args) => {
-  if (isNextRouterError(args[0])) {
+  if (isNextRouterError(args[1])) {
     return
   }
   origConsoleError.apply(window.console, args)
