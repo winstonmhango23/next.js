@@ -23,6 +23,9 @@ export const appOption = {
 }
 
 export function getModuleNotFound(name) {
+  /*if (process.env.TURBOPACK) {
+    return `Error: Cannot find module '${name}'`
+  }*/
   return `Module not found: Can't resolve '${name}'`
 }
 
@@ -55,7 +58,7 @@ export function expectUnsupportedModuleDevError(
   output = context.logs.output
 ) {
   expectUnsupportedModuleProdError(moduleName, output)
-  // turbopack have correct error overly, but doesn't emit those into cli
+  // turbopack have correct error overlay, but doesn't emit those into cli
   if (!process.env.TURBOPACK) {
     expect(stripAnsi(output)).toContain(importStatement)
   }
@@ -73,7 +76,10 @@ export function expectModuleNotFoundProdError(
 ) {
   const moduleNotSupportedMessage = getUnsupportedModule(moduleName)
   expect(stripAnsi(output)).not.toContain(moduleNotSupportedMessage)
-  const moduleNotFoundMessage = getModuleNotFound(moduleName)
+  // turbopack have correct error overlay, but doesn't emit those into cli
+  const moduleNotFoundMessage = process.env.TURBOPACK
+    ? `Error: Cannot find module '${moduleName}'`
+    : getModuleNotFound(moduleName)
   expect(stripAnsi(output)).toContain(moduleNotFoundMessage)
 }
 
@@ -84,7 +90,10 @@ export function expectModuleNotFoundDevError(
   output = context.logs.output
 ) {
   expectModuleNotFoundProdError(moduleName, output)
-  expect(stripAnsi(output)).toContain(importStatement)
+  // turbopack have correct error overlay, but doesn't emit those into cli
+  if (!process.env.TURBOPACK) {
+    expect(stripAnsi(output)).toContain(importStatement)
+  }
 
   const moduleNotSupportedMessage = getUnsupportedModule(moduleName)
   expect(responseText).not.toContain(escapeLF(moduleNotSupportedMessage))
